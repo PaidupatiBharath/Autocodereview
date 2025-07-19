@@ -1,0 +1,19 @@
+#  Template python-build
+
+#  This template allows you to validate your python code.
+#  The workflow allows running tests and code linting on the default branch.
+
+image: python:3.11
+
+pipelines:
+  pull-requests:
+    '**':
+      - step:
+          name: Flake8 Lint and PR Comment
+          script:
+            - pip install flake8 requests
+            - git fetch origin main  # or whatever the base branch is
+            - git diff --name-only origin/main...HEAD -- '*.py' > changed_files.txt
+            - cat changed_files.txt | xargs flake8 --format=default > flake8_output.txt || true
+            - python scripts/comment_flake8_results.py flake8_output.txt
+
